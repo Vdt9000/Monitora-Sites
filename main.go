@@ -1,19 +1,17 @@
-// hello.go
+// go run main.go
 package main
 
 import (
 	"fmt"
 	"net/http"
 	"os"
-	"reflect"
-	//"net/http"
 )
 
 func main() {
-	exibeNomes()
-	//intro()
+
+	intro()
 	for {
-		//	exibeMenu()
+		exibeMenu()
 		comando := LeituraComando()
 
 		switch comando {
@@ -32,25 +30,6 @@ func main() {
 
 	}
 }
-
-//nome, idade := devolveNomeEIdade()
-//fmt.Println(nome, "E tenho ", idade, "anos")
-
-/*if comando == 1 {
-	fmt.Println("Monitorando...")
-} else if comando == 2 {
-	fmt.Println("Exibindo logs")
-} else if comando == 0 {
-	fmt.Println("Saindo do programa...")
-} else {
-	fmt.Println("Opção inválida")
-}*/
-
-/*func devolveNomeEIdade() (string, int) {
-	nome := "Victor"
-	idade := 19
-	return nome, idade
-}*/
 
 func intro() {
 	nome := "Victor"
@@ -77,26 +56,24 @@ func LeituraComando() int {
 
 func initMonitoramento() {
 	fmt.Println("Monitorando...")
-	var sites [2]string
-	sites[0] = "https://youtube.com.br/"
-	sites[1] = "https://pkg.go.dev/std"
 
-	fmt.Println(sites)
-	site := "https://dev.conectahub360.com.br/portal/services/in-progress"
+	sites := []string{"https://www.alura.com.br", "https://chat.openai.com/", "https://discord.com/"}
+
+	for i, site := range sites {
+		fmt.Println(sites[i])
+		fmt.Println("Testando site", i, ":", site)
+		testSite(site)
+	}
+
+}
+
+func testSite(site string) {
 	resp, _ := http.Get(site)
 
 	if resp.StatusCode == 200 {
-		fmt.Println("Site:", site, "foi carregado com sucesso!!!")
+		fmt.Println("Site:", site, "foi carregado com sucesso!")
 	} else {
-		fmt.Print("O site:", site, "está com problemas e não foi possível completar a request. Status Code:", resp.StatusCode)
+		fmt.Println("Site:", site, "está com problemas. Status Code:", resp.StatusCode)
 	}
-}
 
-func exibeNomes() {
-	nomes := []string{
-		"Victor", "Vitinho", "Vini", "Nick"}
-	nomes = append(nomes, "Luan")
-	fmt.Println(nomes)
-	fmt.Println(reflect.TypeOf(nomes))
-	fmt.Println("Seu slice tem", len(nomes))
 }
