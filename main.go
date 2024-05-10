@@ -1,79 +1,123 @@
-// go run main.go
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
+	"strings"
+	"time"
 )
 
-func main() {
+const monitoramentos = 2
+const delay = 5
 
-	intro()
+func main() {
+	exibeIntroducao()
+	leSitesDoArquivo()
 	for {
 		exibeMenu()
-		comando := LeituraComando()
+
+		comando := leComando()
 
 		switch comando {
 		case 1:
-			initMonitoramento()
+			iniciarMonitoramento()
 		case 2:
-			fmt.Println("Exibindo logs...")
+			fmt.Println("Exibindo Logs...")
 		case 0:
-			fmt.Println("Saindo do programa...")
+			fmt.Println("Saindo do programa")
 			os.Exit(0)
 		default:
-			fmt.Println("Opção inválida")
+			fmt.Println("Não conheço este comando")
 			os.Exit(-1)
-
 		}
-
 	}
+
 }
 
-func intro() {
+func exibeIntroducao() {
 	nome := "Victor"
 	versao := 1.2
-	fmt.Println("Olá, sr(a).", nome)
+	fmt.Println("Olá, sr.", nome)
 	fmt.Println("Este programa está na versão", versao)
-
 }
 
 func exibeMenu() {
-
 	fmt.Println("1- Iniciar Monitoramento")
 	fmt.Println("2- Exibir Logs")
 	fmt.Println("0- Sair do Programa")
-
-}
-func LeituraComando() int {
-	var comando int
-	fmt.Scan(&comando)
-	fmt.Println("O comando escolhido foi:", comando)
-
-	return comando
 }
 
-func initMonitoramento() {
+func leComando() int {
+	var comandoLido int
+	fmt.Scan(&comandoLido)
+	//fmt.Println("O comando escolhido foi", comandoLido)
+	fmt.Println("")
+
+	return comandoLido
+}
+
+func iniciarMonitoramento() {
 	fmt.Println("Monitorando...")
 
-	sites := []string{"https://www.alura.com.br", "https://chat.openai.com/", "https://discord.com/"}
+	/*	sites := []string{"https://random-status-code.herokuapp.com/", "https://www.alura.com.br", "https://www.caelum.com.br"}*/
 
-	for i, site := range sites {
-		fmt.Println(sites[i])
-		fmt.Println("Testando site", i, ":", site)
-		testSite(site)
+	sites := leSitesDoArquivo()
+
+	for i := 0; i < monitoramentos; i++ {
+		for i, site := range sites {
+			fmt.Println("Testando site", i, ":", site)
+			testaSite(site)
+		}
+		time.Sleep(delay * time.Second)
+		fmt.Println("")
 	}
 
+	fmt.Println("")
 }
 
-func testSite(site string) {
-	resp, _ := http.Get(site)
+func testaSite(site string) {
+
+	resp, err := http.Get(site)
+
+	if err != nil {
+		fmt.Println("ocorreu um erro")
+	}
 
 	if resp.StatusCode == 200 {
 		fmt.Println("Site:", site, "foi carregado com sucesso!")
+
 	} else {
 		fmt.Println("Site:", site, "está com problemas. Status Code:", resp.StatusCode)
+
+	}
+}
+
+func leSitesDoArquivo() []string {
+
+	var sites []string
+
+	arquivo, err := os.Open("sites.txt")
+
+	if err != nil {
+		fmt.Println("Ocorreu um erro", err)
+
 	}
 
+	leitor := bufio.NewReader(arquivo)
+	for {
+		linha, err := leitor.ReadString('\n')
+		linha = strings.TrimSpace(linha)
+
+		sites = append(sites, linha)
+
+		if err == io.EOF {
+			break
+		}
+
+	}
+	fmt.Println(sites)
+	return sites
 }
